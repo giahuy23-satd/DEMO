@@ -1,0 +1,228 @@
+/* ===== ANIMATION.CSS — All keyframe animations ===== */
+
+/* ---- Intro title reveal — chỉ chạy khi .visible được add ---- */
+@keyframes title-appear {
+  0%   { opacity: 0; transform: translateY(16px) scale(0.96); }
+  100% { opacity: 1; transform: translateY(0)    scale(1); }
+}
+.intro-title-wrap.visible .intro-main-title { animation: title-appear 0.8s 0.1s ease both; }
+.intro-title-wrap.visible .intro-subtitle   { animation: title-appear 0.7s 0.4s ease both; }
+.intro-title-wrap.visible .intro-tagline    { animation: title-appear 0.6s 0.2s ease both; }
+.intro-title-wrap.visible .intro-btn-wrap   { animation: title-appear 0.7s 0.7s ease both; }
+
+/* ---- Pixel noise / glitch ---- */
+@keyframes pixel-glitch {
+  0%  { clip-path: inset(0 0 96% 0); transform: translateX(-4px); }
+  10% { clip-path: inset(30% 0 50% 0); transform: translateX(4px); }
+  20% { clip-path: inset(70% 0 15% 0); transform: translateX(-2px); }
+  30% { clip-path: inset(10% 0 80% 0); transform: translateX(2px); }
+  40% { clip-path: inset(50% 0 30% 0); transform: translateX(-4px); }
+  50% { clip-path: inset(0 0 0 0);     transform: translateX(0); }
+  100%{ clip-path: inset(0 0 0 0);     transform: translateX(0); }
+}
+
+.glitch {
+  position: relative;
+}
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.glitch::before {
+  color: #e74c3c;
+  animation: pixel-glitch 2.4s steps(1) infinite;
+  left: 2px;
+}
+.glitch::after {
+  color: #f0c040;
+  animation: pixel-glitch 2.4s steps(1) 0.3s infinite;
+  left: -2px;
+}
+
+/* ---- Chapter card animation ---- */
+@keyframes chap-slide-in {
+  0%   { opacity: 0; transform: translateX(-30px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+.chapter-label { animation: chap-slide-in 0.5s 0.1s ease both; }
+.chapter-title { animation: chap-slide-in 0.5s 0.25s ease both; }
+
+/* ---- Dialogue box slide up ---- */
+@keyframes dlg-slide-up {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+#dialogue-box.visible {
+  animation: dlg-slide-up 0.3s ease both;
+}
+
+/* ---- Memory popup ---- */
+@keyframes mem-pop {
+  0%   { transform: scale(0.85); opacity: 0; }
+  60%  { transform: scale(1.04); }
+  100% { transform: scale(1);    opacity: 1; }
+}
+#memory-popup.visible .memory-frame {
+  animation: mem-pop 0.4s ease both;
+}
+
+/* ---- RSVP modal ---- */
+@keyframes modal-appear {
+  from { transform: translateY(20px) scale(0.97); opacity: 0; }
+  to   { transform: translateY(0)    scale(1);    opacity: 1; }
+}
+#rsvp-modal.visible .rsvp-form-wrap {
+  animation: modal-appear 0.35s ease both;
+}
+
+/* ---- Final question bounce ---- */
+@keyframes fq-bounce {
+  0%   { transform: translateY(30px); opacity: 0; }
+  60%  { transform: translateY(-6px); }
+  100% { transform: translateY(0);    opacity: 1; }
+}
+#screen-final-question.active .fq-border {
+  animation: fq-bounce 0.6s ease both;
+}
+#screen-final-question.active .fq-title {
+  animation: fq-bounce 0.5s 0.1s ease both;
+}
+
+/* ---- Notification ---- */
+@keyframes notif-in {
+  from { transform: translateX(-50%) translateY(-80px); opacity: 0; }
+  to   { transform: translateX(-50%) translateY(0);     opacity: 1; }
+}
+#notification.show {
+  animation: notif-in 0.4s cubic-bezier(0.23,1,0.32,1) both;
+}
+
+/* ---- Pixel heartbeat (for important UI) ---- */
+@keyframes heartbeat {
+  0%   { transform: scale(1); }
+  14%  { transform: scale(1.06); }
+  28%  { transform: scale(1); }
+  42%  { transform: scale(1.04); }
+  70%  { transform: scale(1); }
+  100% { transform: scale(1); }
+}
+.heartbeat { animation: heartbeat 1.6s ease infinite; }
+
+/* ---- Gold shimmer on invitation ---- */
+@keyframes gold-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+.inv-name {
+  background: linear-gradient(90deg, #f0c040 30%, #ffffff 50%, #f0c040 70%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gold-shimmer 3s linear infinite;
+}
+
+/* ---- Blink (pixel style) ---- */
+@keyframes px-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100%{ opacity: 0; }
+}
+.px-blink { animation: px-blink 1s steps(1) infinite; }
+
+/* ---- Pixel float (objects) ---- */
+@keyframes px-float {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-7px); }
+  100% { transform: translateY(0); }
+}
+.px-float { animation: px-float 2.4s ease-in-out infinite; }
+
+/* ---- Scanline flicker ---- */
+@keyframes scanline-move {
+  from { background-position: 0 0; }
+  to   { background-position: 0 8px; }
+}
+#scanlines {
+  animation: scanline-move 0.3s steps(1) infinite;
+}
+
+/* ---- Boss HP bar pulse ---- */
+@keyframes hp-pulse {
+  0%   { box-shadow: none; }
+  50%  { box-shadow: 0 0 10px rgba(231,76,60,0.8); }
+  100% { box-shadow: none; }
+}
+.boss-hp-bar { animation: hp-pulse 0.8s ease infinite; }
+
+/* ---- Invitation card appear ---- */
+@keyframes inv-card-appear {
+  from { transform: translateY(24px) scale(0.98); opacity: 0; }
+  to   { transform: translateY(0)    scale(1);    opacity: 1; }
+}
+.inv-card { animation: inv-card-appear 0.7s 0.2s ease both; }
+
+/* ---- Pixel door open ---- */
+@keyframes door-open {
+  from { transform: translateX(-50%) scaleX(1); }
+  to   { transform: translateX(-50%) scaleX(0.05) translateX(48px); }
+}
+.door-opening { animation: door-open 0.6s ease both; }
+
+/* ---- Timeline dot pulse ---- */
+@keyframes dot-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(240,192,64,0.7); }
+  70%  { box-shadow: 0 0 0 10px rgba(240,192,64,0); }
+  100% { box-shadow: 0 0 0 0 rgba(240,192,64,0); }
+}
+.timeline-item.active .timeline-dot {
+  animation: dot-pulse 1.2s ease infinite;
+}
+
+/* ---- Confetti spin ---- */
+@keyframes confetti-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ---- Quest accepted flash ---- */
+@keyframes quest-flash {
+  0%   { background: transparent; }
+  20%  { background: rgba(240,192,64,0.15); }
+  40%  { background: transparent; }
+  60%  { background: rgba(240,192,64,0.1); }
+  100% { background: transparent; }
+}
+.quest-accepted { animation: quest-flash 0.8s ease; }
+
+/* ---- Pixel wipe (horizontal) ---- */
+@keyframes px-wipe-in {
+  from { clip-path: inset(0 100% 0 0); }
+  to   { clip-path: inset(0 0% 0 0); }
+}
+.px-wipe { animation: px-wipe-in 0.5s steps(8) both; }
+
+/* ---- Diploma glow ---- */
+@keyframes diploma-glow {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(240,192,64,0.4)); }
+  50%       { filter: drop-shadow(0 0 14px rgba(240,192,64,0.9)); }
+}
+.diploma-glow { animation: diploma-glow 2s ease infinite; }
+
+/* ---- Screen vignette ---- */
+#app::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.55) 100%);
+  pointer-events: none;
+  z-index: 9980;
+}
+
+/* ---- Pixel progress bar fill ---- */
+@keyframes progress-fill {
+  from { width: 0%; }
+  to   { width: 100%; }
+}

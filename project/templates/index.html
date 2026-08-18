@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <meta property="og:title" content="THE LAST CHAPTER — Graduation 2026" />
+  <meta property="og:description" content="A Pixel Art Interactive Graduation Story" />
+  <title>THE LAST CHAPTER — Graduation 2026</title>
+
+  <!-- Pixel font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/pixel.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/animation.css') }}" />
+
+  <style>
+    /* Extra inline: pixel favicon via SVG data-uri */
+    :root { --vh: 1vh; }
+    html, body { height: calc(var(--vh, 1vh) * 100); }
+    /* Ensure canvas fills screen */
+    #game-canvas { display: block; }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ══════════ GLOBAL LAYERS ══════════ -->
+
+  <!-- CRT scanlines -->
+  <div id="scanlines" aria-hidden="true"></div>
+
+  <!-- Fade overlay (black/white transitions) -->
+  <div id="screen-overlay" aria-hidden="true"></div>
+
+  <!-- Particle canvases — always on top of scenes, below UI -->
+  <canvas id="particles-canvas" aria-hidden="true"></canvas>
+  <canvas id="confetti-canvas"  aria-hidden="true"></canvas>
+
+  <!-- ══════════ SCREEN: INTRO ══════════ -->
+  <div id="screen-intro" class="screen active" role="main" aria-label="Intro screen">
+
+    <!-- Animated pixel background -->
+    <canvas id="intro-pixel-canvas"
+      style="position:absolute;inset:0;width:100%;height:100%;z-index:0;"
+      aria-hidden="true"></canvas>
+
+    <!-- Typewriter text (chapter 00 lines) -->
+    <div id="intro-typetext" class="intro-typetext" aria-live="polite"></div>
+
+    <!-- Title + buttons (hidden until intro sequence completes) -->
+    <div class="intro-title-wrap" id="intro-title-wrap" aria-label="Main menu">
+      <div class="intro-tagline">— A PIXEL STORY —</div>
+
+      <div class="intro-main-title glitch" data-text="THE LAST&#10;CHAPTER">
+        THE LAST<br>CHAPTER
+      </div>
+
+      <div class="intro-subtitle">A GRADUATION STORY</div>
+      <div class="intro-tagline" style="color:#444;font-size:6px;margin-top:-8px;">
+        NGUYỄN LÊ GIA HUY · CLASS OF 2026
+      </div>
+
+      <div class="intro-btn-wrap">
+        <button class="pixel-btn blink" id="btn-begin" aria-label="Begin Story">
+          ▶ BEGIN STORY
+        </button>
+        <button class="pixel-btn-secondary" id="btn-view-invite" aria-label="View Invitation">
+          📜 VIEW INVITATION
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ SCREEN: STORY ══════════ -->
+  <div id="screen-story" class="screen" role="main" aria-label="Story screen">
+
+    <!-- Main game canvas -->
+    <canvas id="game-canvas" aria-label="Game world"></canvas>
+
+    <!-- Chapter label (top-left) -->
+    <div id="chapter-ui" aria-live="polite">
+      <span class="chapter-label" id="ui-chapter-label">CHAPTER 00</span>
+      <span class="chapter-title" id="ui-chapter-title">THE BEGINNING</span>
+    </div>
+
+    <!-- HUD buttons (top-right) -->
+    <div id="hud-buttons" role="toolbar" aria-label="Story controls">
+      <button class="hud-btn" id="btn-skip"  title="Skip to invitation">SKIP</button>
+      <button class="hud-btn" id="btn-sound" title="Toggle sound">♪ ON</button>
+      <button class="hud-btn" id="btn-menu"  title="Return to menu">MENU</button>
+    </div>
+
+    <!-- Boss battle HP bar (hidden until boss chapter) -->
+    <div id="boss-ui" role="status" aria-label="Boss HP">
+      <div class="boss-name">⚔ FINAL YEAR</div>
+      <div class="boss-hp-bar-wrap" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+        <div class="boss-hp-bar" id="boss-hp-bar" style="width:100%"></div>
+      </div>
+      <div class="boss-hp-text" id="boss-hp-text">HP: 100%</div>
+      <div class="boss-tasks"   id="boss-tasks"></div>
+    </div>
+  </div>
+
+  <!-- ══════════ SCREEN: YOU ARE INVITED ══════════ -->
+  <div id="screen-invited" class="screen" role="main" aria-label="You are invited">
+    <canvas id="invited-canvas"
+      style="position:absolute;inset:0;width:100%;height:100%;z-index:0;"
+      aria-hidden="true"></canvas>
+    <div class="invited-text-wrap" style="position:relative;z-index:10;">
+      <div class="invited-label">✦ YOU ARE INVITED ✦</div>
+      <div class="invited-main">YOU ARE<br>INVITED</div>
+    </div>
+  </div>
+
+  <!-- ══════════ SCREEN: INVITATION ══════════ -->
+  <div id="screen-invitation" class="screen" role="main" aria-label="Graduation invitation">
+
+    <!-- Small guide character, bottom-right -->
+    <div id="guide-invitation"
+      style="position:fixed;bottom:16px;right:16px;z-index:200;pointer-events:none;"
+      aria-hidden="true"></div>
+
+    <div class="invitation-wrap">
+      <div class="pixel-divider"></div>
+
+      <div class="inv-card">
+        <div class="inv-badge">✦ YOU ARE INVITED ✦</div>
+        <span class="inv-icon" aria-hidden="true">🎓</span>
+        <h1 class="inv-title">YOU ARE<br>INVITED</h1>
+        <div class="inv-ceremony-title">GRADUATION CEREMONY</div>
+
+        <div class="inv-divider"></div>
+
+        <div class="inv-name">NGUYỄN LÊ GIA HUY</div>
+        <div class="inv-class">CLASS OF 2026</div>
+
+        <div class="inv-divider"></div>
+
+        <div class="inv-details">
+          <div class="inv-detail-item">
+            <span class="inv-detail-label">📅 DATE</span>
+            <span class="inv-detail-value" id="inv-date">TBD<br>2026</span>
+          </div>
+          <div class="inv-detail-item">
+            <span class="inv-detail-label">🕐 TIME</span>
+            <span class="inv-detail-value" id="inv-time">TBD</span>
+          </div>
+          <div class="inv-detail-item">
+            <span class="inv-detail-label">📍 LOCATION</span>
+            <span class="inv-detail-value" id="inv-location">TBD</span>
+          </div>
+          <div class="inv-detail-item">
+            <span class="inv-detail-label">👔 DRESS CODE</span>
+            <span class="inv-detail-value" id="inv-dress">SMART CASUAL</span>
+          </div>
+        </div>
+
+        <div class="inv-divider"></div>
+
+        <!-- Guest counter -->
+        <div id="guest-counter"
+          style="font-size:6px;color:#6b0f1a;letter-spacing:2px;margin-bottom:16px;"
+          aria-live="polite"></div>
+
+        <div class="inv-actions">
+          <button class="pixel-btn heartbeat" id="btn-rsvp-invite"
+            style="font-size:8px;padding:12px 22px;" aria-label="RSVP">
+            [ RSVP ]
+          </button>
+          <button class="pixel-btn-secondary" id="btn-view-location"
+            style="font-size:7px;" aria-label="View location">
+            📍 MAP
+          </button>
+          <button class="pixel-btn-secondary" id="btn-view-memories"
+            style="font-size:7px;" aria-label="View memories">
+            💭 MEMORIES
+          </button>
+          <button class="pixel-btn-secondary" id="btn-back-story"
+            style="font-size:7px;" aria-label="Back to story">
+            ◀ BACK
+          </button>
+        </div>
+      </div>
+
+      <div class="pixel-divider"></div>
+    </div>
+  </div>
+
+  <!-- ══════════ SCREEN: FINAL QUESTION ══════════ -->
+  <div id="screen-final-question" class="screen" role="main" aria-label="Final question">
+    <canvas id="fq-canvas"
+      style="position:absolute;inset:0;width:100%;height:100%;z-index:0;"
+      aria-hidden="true"></canvas>
+    <div class="fq-border" style="position:relative;z-index:10;">
+      <div class="fq-title">✦ FINAL QUESTION ✦</div>
+      <div class="fq-question">"Bạn sẽ đến chứ?"</div>
+      <div class="fq-choices">
+        <button class="pixel-btn" id="btn-ill-be-there"
+          style="font-size:7px;padding:14px 22px;"
+          aria-label="I'll be there">
+          ✓ I'LL BE THERE
+        </button>
+        <button class="pixel-btn-secondary" id="btn-let-know"
+          style="font-size:7px;padding:14px 22px;"
+          aria-label="I'll let you know">
+          ? I'LL LET YOU KNOW
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ SCREEN: FINAL SCENE ══════════ -->
+  <div id="screen-final" class="screen" role="main" aria-label="Final scene">
+    <canvas id="final-canvas"
+      style="position:absolute;inset:0;width:100%;height:100%;z-index:0;"
+      aria-hidden="true"></canvas>
+    <div id="final-texts"
+      style="position:relative;z-index:10;display:flex;flex-direction:column;
+             gap:20px;align-items:center;text-align:center;max-width:560px;width:90%;"
+      aria-live="polite"></div>
+  </div>
+
+  <!-- ══════════ DIALOGUE BOX ══════════ -->
+  <div id="dialogue-box" role="dialog" aria-live="polite" aria-label="Story dialogue">
+    <div class="dialogue-speaker" id="dialogue-speaker">GUIDE</div>
+    <div class="dialogue-text"    id="dialogue-text"></div>
+    <div class="dialogue-choices" id="dialogue-choices" style="display:none;"></div>
+    <!-- Click-anywhere hint -->
+    <div id="dlg-hint"
+      style="position:absolute;right:20px;bottom:14px;font-size:5px;
+             color:#444;letter-spacing:1px;pointer-events:none;"
+      class="px-blink">CLICK TO CONTINUE</div>
+  </div>
+
+  <!-- ══════════ MEMORY POPUP ══════════ -->
+  <div id="memory-popup" role="dialog" aria-modal="true" aria-label="Memory found">
+    <div class="memory-frame">
+      <div class="memory-badge">✦ MEMORY FOUND ✦</div>
+      <div class="memory-number" id="mem-number">MEMORY #01</div>
+      <div class="memory-title"  id="mem-title">THE FIRST DAY</div>
+      <div class="memory-content" id="mem-content">
+        Ngày đầu tiên bước vào trường, mọi thứ đều thật mới mẻ...
+      </div>
+      <div class="memory-choices">
+        <button class="dialogue-choice" id="mem-yes">[ YES, I REMEMBER ]</button>
+        <button class="dialogue-choice" id="mem-no">[ I DON'T REMEMBER ]</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ RSVP MODAL ══════════ -->
+  <div id="rsvp-modal" role="dialog" aria-modal="true" aria-label="RSVP form">
+    <div class="rsvp-form-wrap">
+      <div class="rsvp-title">RSVP</div>
+      <div class="rsvp-subtitle">GRADUATION CEREMONY 2026</div>
+
+      <div class="rsvp-field">
+        <label class="rsvp-label" for="rsvp-name">👤 YOUR NAME *</label>
+        <input class="rsvp-input" id="rsvp-name" type="text"
+          placeholder="Tên của bạn..." autocomplete="name" required />
+      </div>
+      <div class="rsvp-field">
+        <label class="rsvp-label" for="rsvp-email">📧 EMAIL</label>
+        <input class="rsvp-input" id="rsvp-email" type="email"
+          placeholder="your@email.com" autocomplete="email" />
+      </div>
+      <div class="rsvp-field">
+        <label class="rsvp-label" for="rsvp-phone">📱 PHONE</label>
+        <input class="rsvp-input" id="rsvp-phone" type="tel"
+          placeholder="Số điện thoại..." autocomplete="tel" />
+      </div>
+      <div class="rsvp-field">
+        <label class="rsvp-label" for="rsvp-message">💬 MESSAGE</label>
+        <input class="rsvp-input" id="rsvp-message" type="text"
+          placeholder="Lời nhắn cho Gia Huy..." />
+      </div>
+
+      <div class="rsvp-actions">
+        <button class="pixel-btn" id="btn-rsvp-submit"
+          style="font-size:7px;padding:12px 22px;">
+          CONFIRM ✓
+        </button>
+        <button class="pixel-btn-secondary" id="btn-rsvp-cancel"
+          style="font-size:7px;">
+          CANCEL
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ NOTIFICATION TOAST ══════════ -->
+  <div id="notification" role="status" aria-live="polite"></div>
+
+</div><!-- #app -->
+
+<!-- ══════════ SCRIPTS — load order matters ══════════ -->
+<script src="{{ url_for('static', filename='js/audio.js') }}"></script>
+<script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+<script src="{{ url_for('static', filename='js/renderer.js') }}"></script>
+<script src="{{ url_for('static', filename='js/character.js') }}"></script>
+<script src="{{ url_for('static', filename='js/camera.js') }}"></script>
+<script src="{{ url_for('static', filename='js/particle.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dialogue.js') }}"></script>
+<script src="{{ url_for('static', filename='js/transition.js') }}"></script>
+<script src="{{ url_for('static', filename='js/story.js') }}"></script>
+<script src="{{ url_for('static', filename='js/rsvp.js') }}"></script>
+
+<script>
+  // Fix mobile viewport height (100vh bug on iOS)
+  function setVH() {
+    document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px');
+  }
+  setVH();
+  window.addEventListener('resize', setVH);
+
+  // Unlock AudioContext on first user interaction
+  document.addEventListener('click', () => { if (typeof Audio !== 'undefined') Audio.resume(); }, { once: true });
+  document.addEventListener('touchstart', () => { if (typeof Audio !== 'undefined') Audio.resume(); }, { once: true });
+</script>
+</body>
+</html>
